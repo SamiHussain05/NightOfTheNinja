@@ -1,0 +1,27 @@
+<!-- base_generic.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Game Room{% endblock %}</title>
+    <!-- Add any CSS or JS files here -->
+  </head>
+  <body>
+    <header>
+      <nav>
+        <!-- Navigation links, e.g., Home, Logout, etc. -->
+      </nav>
+    </header>
+
+    <main>
+      {% block content %}
+      <!-- Page-specific content will go here -->
+      {% endblock %}
+    </main>
+
+    <footer>
+      <!-- Footer content here -->
+    </footer>
+  </body>
+</html>

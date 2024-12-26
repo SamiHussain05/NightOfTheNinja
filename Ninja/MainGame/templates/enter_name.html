@@ -1,0 +1,6 @@
+<form method="POST">
+  {% csrf_token %}
+  <label for="name">Enter your name:</label>
+  <input type="text" name="name" id="name" required />
+  <button type="submit">Join</button>
+</form>

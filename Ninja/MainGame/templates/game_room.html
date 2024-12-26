@@ -1,0 +1,84 @@
+{% comment %} {% extends "base_generic.html" %} {% block content %}
+<h1>Welcome to the Game Room: {{ game.name }}</h1>
+
+<!-- Display players and their cards -->
+<h2>Players in the game</h2>
+<ul>
+  {% for player in game.players.all %}
+  <li>
+    <strong>{{ player.user.username }}</strong>
+    <p>House Card: {{ player.house_card }}</p>
+    <p>Honor Points: {{ player.honor_points }}</p>
+    <p>Status: {% if player.is_alive %}Alive{% else %}Dead{% endif %}</p>
+
+    <h4>Cards:</h4>
+    <ul>
+      {% for card in player.game.cards.all %} {% if card.owner == player %}
+      <li>
+        {{ card.card_type }} - Value: {{ card.value }}
+        <!-- Optionally, display card images if available -->
+        <img
+          src="/static/images/{{ card.card_type }}.png"
+          alt="{{ card.card_type }}"
+          style="width: 50px"
+        />
+      </li>
+      {% endif %} {% endfor %}
+    </ul>
+  </li>
+  {% empty %}
+  <li>No players in the game yet.</li>
+  {% endfor %}
+</ul>
+
+<!-- Shuffle Cards Button -->
+<button id="shuffleCardsButton">Shuffle and Deal Cards</button>
+
+<script>
+  // JavaScript to handle the Shuffle Cards button click
+  document
+    .getElementById("shuffleCardsButton")
+    .addEventListener("click", function () {
+      fetch("{% url 'deal_cards' game.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}", // CSRF token to prevent errors
+        },
+        body: JSON.stringify({}),
+      })
+        .then((response) => {
+          if (response.ok) {
+            // Redirect to game room if successful
+            window.location.href = "{% url 'game_room' game.id %}";
+          } else {
+            // Log the response status and error message
+            response.text().then((text) => {
+              console.error("Failed to shuffle and deal cards:", text);
+              alert("Failed to shuffle and deal cards: " + text);
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error: " + error);
+        });
+    });
+</script>
+
+{% endblock %} {% endcomment %}
+<h1>Welcome, {{ player.name }}</h1>
+<h2>Your Cards:</h2>
+<p>House Card: {{ player.house_card }}</p>
+<h3>Ninja Cards:</h3>
+<ul>
+  {% for card in player.ninja_cards %}
+  <li>{{ card }}</li>
+  {% empty %}
+  <li>No ninja cards assigned yet.</li>
+  {% endfor %}
+</ul>
+<!-- Button to deal cards -->
+<form action="{% url 'deal_cards' game.id %}" method="POST">
+  {% csrf_token %}
+  <button type="submit">Deal Cards</button>
+</form>

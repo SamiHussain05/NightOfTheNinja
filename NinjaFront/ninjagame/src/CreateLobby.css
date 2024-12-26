@@ -1,0 +1,37 @@
+/* Full-page background with center alignment */
+.create-lobby-container {
+    height: 100vh;
+    background-color: #1a1a1a; /* Dark background */
+    color: white; /* White text for contrast */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Wrapper for content */
+  .content-wrapper {
+    text-align: center;
+  }
+  
+  /* Title Styling */
+  .title {
+    font-size: 3.5rem; /* Large font size */
+    font-weight: bold;
+    margin-bottom: 2rem; /* Space below the title */
+    color: #f8f9fa; /* Subtle white */
+  }
+  
+  /* Button Styling */
+  .create-lobby-btn {
+    border-radius: 5px; /* Rounded corners */
+    font-size: 1.25rem; /* Slightly larger font */
+    padding: 0.75rem 2rem; /* Spacious button */
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  .create-lobby-btn:hover {
+    background-color: #343a40; /* Lighter gray on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+  }
+  

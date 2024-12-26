@@ -1,0 +1,60 @@
+/* Full-page background with center alignment */
+.join-lobby-container {
+    height: 100vh;
+    background-color: #1a1a1a; /* Dark background */
+    color: white; /* White text for contrast */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Wrapper for content */
+  .content-wrapper {
+    text-align: center;
+    max-width: 500px; /* Limit width for better readability */
+    width: 100%;
+  }
+  
+  /* Title Styling */
+  .join-title {
+    font-size: 3rem; /* Large font size */
+    font-weight: bold;
+    color: #f8f9fa;
+    margin-bottom: 2rem;
+  }
+  
+  /* Form Fields */
+  .input-field {
+    background-color: #343a40; /* Dark background for input fields */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .input-field::placeholder {
+    color: #adb5bd; /* Subtle placeholder color */
+  }
+  
+  /* Join Button */
+  .join-btn {
+    border-radius: 5px;
+    font-size: 1.25rem;
+    padding: 0.75rem 2rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  .join-btn:hover {
+    background-color: #495057; /* Lighter gray on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+  }
+  
+  /* Error Alert */
+  .error-alert {
+    font-size: 1rem;
+  }
+  

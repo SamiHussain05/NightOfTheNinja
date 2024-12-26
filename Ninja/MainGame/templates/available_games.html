@@ -1,0 +1,45 @@
+{% comment %}
+<!-- available_games.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Available Games</title>
+  </head>
+  <body>
+    {% if user.is_authenticated %}
+    <p>You are logged in as {{ user.username }}</p>
+    {% else %}
+    <p>You are not logged in.</p>
+    {% endif %}
+    <h1>Available Games to Join</h1>
+
+    {% if games %}
+    <ul>
+      {% for game in games %}
+      <li>
+        <h3>{{ game.name }}</h3>
+        <p>Players: {{ game.players.count }} / {{ game.max_players }}</p>
+        <p>Created at: {{ game.created_at }}</p>
+        <a href="{% url 'join_game' game.id %}">Join Game</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No available games to join at the moment.</p>
+    {% endif %}
+  </body>
+</html>
+{% endcomment %}
+
+<!-- available_games.html -->
+<h1>Available Games</h1>
+<ul>
+  {% for game in games %}
+  <li>
+    <strong>{{ game.name }}</strong> - Lobby Code: {{ game.lobby_code }}
+    <a href="{% url 'enter_name' lobby_code=game.lobby_code %}">Join</a>
+  </li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,59 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #cdcdcd ;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Ensures left, center, and right alignment */
+  padding: 20px 30px;
+  font-size: 1.2rem; /* Standard font size for the header */
+  color: #333; /* Darker text for readability */
+}
+
+.App-header .game-title {
+  font-size: 2rem; /* Larger font size for the main title */
+  font-weight: bold; /* Bold title for emphasis */
+  flex: 1; /* Centers the title horizontally */
+  text-align: center; /* Ensures the title is centered */
+}
+
+.App-header .developer-info, .App-header .artist-info {
+  font-size: 1rem; /* Slightly smaller font for developer/artist info */
+  color: #666; /* Lighter grey text for less emphasis */
+}
+
+.App-header .developer-info {
+  text-align: left; /* Align developer info to the left */
+  flex: 0; /* Prevents it from stretching */
+}
+
+.App-header .artist-info {
+  text-align: right; /* Align artist info to the right */
+  flex: 0; /* Prevents it from stretching */
+}
+
+.App-header .App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
