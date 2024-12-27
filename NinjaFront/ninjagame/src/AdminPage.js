@@ -9,6 +9,8 @@ const AdminPage = () => {
   const [players, setPlayers] = useState([]);
   const [playerCardsCount, setPlayerCardsCount] = useState({});
   const [usedCards, setUsedCards] = useState([]);
+  const [removedCards, setRemovedCards] = useState([]);  // State for removed cards
+  const [selectedPlayer, setSelectedPlayer] = useState(null);  // Track selected player
 
   // Fetch players and their ninja card counts
   const fetchPlayersAndCounts = async () => {
@@ -47,12 +49,59 @@ const AdminPage = () => {
     }
   };
 
+  // Fetch removed cards
+  const fetchRemovedCards = async () => {
+    try {
+      const response = await fetch(`/get-removed-cards/${lobbyCode}/`);
+      const data = await response.json();
+      if (response.ok) {
+        setRemovedCards(data.removed_cards || []);
+      } else {
+        console.error(data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching removed cards:', error);
+    }
+  };
+
+  // Handle dealing a removed card to a player (randomly pick card)
+  const handleDealRemovedCard = async () => {
+    if (!selectedPlayer) {
+      setStatus('Please select a player to deal a card to.');
+      return;
+    }
+
+    try {
+      // Call the backend to randomly deal a card from the removed cards to the selected player
+      const response = await fetch(`/deal-removed-card/${lobbyCode}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          player_id: selectedPlayer,  // Pass only the selected player
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setStatus('Card successfully dealt!');
+        fetchPlayersAndCounts(); // Refresh player counts
+      } else {
+        setStatus(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error dealing removed card:', error);
+    }
+  };
+
+  // Fetch data initially and set up interval for real-time updates
   useEffect(() => {
     fetchPlayersAndCounts();
     fetchUsedCards();
+    fetchRemovedCards();
     const interval = setInterval(() => {
       fetchPlayersAndCounts();
       fetchUsedCards();
+      fetchRemovedCards();
     }, 5000);
 
     return () => clearInterval(interval);
@@ -112,7 +161,12 @@ const AdminPage = () => {
         {players.length > 0 ? (
           <ListGroup className="players-list">
             {players.map((player) => (
-              <ListGroup.Item key={player.id} className="player-item">
+              <ListGroup.Item
+                key={player.id}
+                className="player-item"
+                onClick={() => setSelectedPlayer(player.id)} // Set selected player on click
+                active={selectedPlayer === player.id} // Highlight selected player
+              >
                 {player.name} - Ninja Cards: {playerCardsCount[player.id] || 0}
               </ListGroup.Item>
             ))}
@@ -121,23 +175,38 @@ const AdminPage = () => {
           <p className="no-players">No players have joined yet.</p>
         )}
 
-      <h3 className="used-cards-heading">Used Cards:</h3>
-      {usedCards.length > 0 ? (
-        <div className="used-cards-container">
-          {usedCards.map((entry, index) => (
-            <div key={index} className="card-container">
-              <img
-                src={`/static/cards/${entry.card}.jpg`}
-                alt={`Used Card ${entry.card}`}
-                className="used-card-image"
-              />
-              <div className="player-name">{entry.player_name}</div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p>No cards have been used yet.</p>
-      )}
+        <h3 className="removed-cards-heading">Removed Cards:</h3>
+        <p>Select a player below to deal a randomly selected removed card.</p>
+
+        <Row>
+          <Col>
+            <Button
+              variant="primary"
+              onClick={handleDealRemovedCard}
+              disabled={!selectedPlayer}
+            >
+              Deal Random Card to Selected Player
+            </Button>
+          </Col>
+        </Row>
+
+        <h3 className="used-cards-heading">Used Cards:</h3>
+        {usedCards.length > 0 ? (
+          <div className="used-cards-container">
+            {usedCards.map((entry, index) => (
+              <div key={index} className="card-container">
+                <img
+                  src={`/static/cards/${entry.card}.jpg`}
+                  alt={`Used Card ${entry.card}`}
+                  className="used-card-image"
+                />
+                <div className="player-name">{entry.player_name}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No cards have been used yet.</p>
+        )}
 
         <Button
           variant="dark"

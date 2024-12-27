@@ -4,7 +4,8 @@ from django.db import models
 class Lobby(models.Model):
     code = models.CharField(max_length=6, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    used_cards = models.JSONField(default=list) 
+    used_cards = models.JSONField(default=list)
+    removed_cards = models.JSONField(default=list)
 
 class Player(models.Model):
     name = models.CharField(max_length=100)
