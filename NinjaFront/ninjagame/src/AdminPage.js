@@ -72,7 +72,6 @@ const AdminPage = () => {
     }
 
     try {
-      // Call the backend to randomly deal a card from the removed cards to the selected player
       const response = await fetch(`/deal-removed-card/${lobbyCode}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -163,11 +162,13 @@ const AdminPage = () => {
             {players.map((player) => (
               <ListGroup.Item
                 key={player.id}
-                className="player-item"
+                className={`player-item ${selectedPlayer === player.id ? 'active' : ''}`}
                 onClick={() => setSelectedPlayer(player.id)} // Set selected player on click
-                active={selectedPlayer === player.id} // Highlight selected player
               >
                 {player.name} - Ninja Cards: {playerCardsCount[player.id] || 0}
+                {selectedPlayer === player.id && (
+                  <span className="selected-player-label">Selected</span>
+                )}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -175,8 +176,7 @@ const AdminPage = () => {
           <p className="no-players">No players have joined yet.</p>
         )}
 
-        <h3 className="removed-cards-heading">Removed Cards:</h3>
-        <p>Select a player below to deal a randomly selected removed card.</p>
+        <h3 className="removed-cards-heading">Removed Cards: {removedCards.length}</h3>
 
         <Row>
           <Col>

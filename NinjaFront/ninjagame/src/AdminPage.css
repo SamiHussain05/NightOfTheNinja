@@ -40,15 +40,36 @@
 }
 
 .player-item {
-    background-color: #343a40;
+    background-color: #343a40; /* Dark background for the player item */
     color: white;
-    border: none; /* Remove border for cleaner look */
+    font-size: 1.25rem; /* Larger font size for better readability */
+    padding: 1rem 1.5rem; /* Padding around the text */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effect */
+    margin-bottom: 1rem; /* Space between player items */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* No Players Message */
-.no-players {
-    color: #adb5bd; /* Subtle gray */
-    font-style: italic;
+/* Hover Effect on Player Item */
+.player-item:hover {
+    background-color: #495057; /* Lighten the background on hover */
+    transform: scale(1.02); /* Slight zoom effect */
+}
+
+/* Highlight Selected Player */
+.player-item.active {
+    background-color: #007bff; /* Blue background for selected player */
+    color: white; /* Ensure text stays readable */
+    border: 2px solid #0056b3; /* Darker border for emphasis */
+}
+
+/* Label to indicate selected player */
+.selected-player-label {
+    margin-left: 10px;
+    font-weight: bold;
+    color: #28a745; /* Green color for "Selected" label */
 }
 
 /* Reshuffle Button */
@@ -85,78 +106,30 @@
     font-size: 1rem;
 }
 
-/* Players Section */
-.players-heading {
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-    color: #f8f9fa; /* White color for the heading */
-  }
-  
-  /* Player List Styling */
-  .players-list {
-    margin-bottom: 2rem; /* Space between list and button */
-    text-align: left; /* Align text to the left */
-    padding: 0; /* Remove default padding */
-  }
-  
-  /* Individual Player Item Styling */
-  .player-item {
-    background-color: #343a40; /* Dark background for the player item */
-    color: #f8f9fa; /* White text */
-    font-size: 1.25rem; /* Larger font size for better readability */
-    padding: 1rem 1.5rem; /* Padding around the text */
-    border-radius: 5px; /* Rounded corners */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effect */
-    margin-bottom: 1rem; /* Space between player items */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  /* Hover Effect on Player Item */
-  .player-item:hover {
-    background-color: #495057; /* Lighten the background on hover */
-    transform: scale(1.02); /* Slight zoom effect */
-  }
-  
-  /* Player Name Styling */
-  .player-item .player-name {
-    font-weight: bold; /* Make player names bold */
-    color: #f8f9fa; /* Keep the text white */
-    text-transform: capitalize; /* Capitalize the first letter of each word */
-    transition: color 0.3s ease;
-  }
-  
-  /* Player Name Hover Effect */
-  .player-item:hover .player-name {
-    color: #28a745; /* Change player name color to green when hovered */
-  }
-  
-
-  .used-cards-container {
+/* Used Cards Section */
+.used-cards-container {
     display: grid; /* Use grid layout */
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Automatically fill columns based on available space */
     gap: 16px; /* Space between grid items */
     margin-top: 20px;
-  }
-  
-  .card-container {
+}
+
+.card-container {
     text-align: center;
     background-color: #343a40;
     color: white;
     padding: 10px;
     border-radius: 5px;
-  }
-  
-  .used-card-image {
+}
+
+.used-card-image {
     width: 100%;
     max-width: 100px; /* Adjust the max-width of the card image */
     height: auto;
-  }
-  
-  .player-name {
+}
+
+.player-name {
     margin-top: 8px;
     font-weight: bold;
     color: #f8f9fa;
-  }
-  
+}
