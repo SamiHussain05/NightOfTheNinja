@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Button, Alert, ListGroup, Row, Col } from 'react-bootstrap';
+import { Container, Button, Alert, ListGroup, Row, Col, Modal } from 'react-bootstrap';
 import './AdminPage.css';
 
 const AdminPage = () => {
@@ -9,8 +9,9 @@ const AdminPage = () => {
   const [players, setPlayers] = useState([]);
   const [playerCardsCount, setPlayerCardsCount] = useState({});
   const [usedCards, setUsedCards] = useState([]);
-  const [removedCards, setRemovedCards] = useState([]);  // State for removed cards
-  const [selectedPlayer, setSelectedPlayer] = useState(null);  // Track selected player
+  const [removedCards, setRemovedCards] = useState([]);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null); // State to track the selected image
 
   // Fetch players and their ninja card counts
   const fetchPlayersAndCounts = async () => {
@@ -150,6 +151,15 @@ const AdminPage = () => {
     }
   };
 
+  // Handle modal image close
+  const handleImageClick = (imageSrc) => {
+    setSelectedImage(imageSrc); // Open modal with selected image
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImage(null); // Close modal
+  };
+
   return (
     <Container fluid className="admin-page-container">
       <div className="content-wrapper text-center">
@@ -199,6 +209,7 @@ const AdminPage = () => {
                   src={`/static/cards/${entry.card}.jpg`}
                   alt={`Used Card ${entry.card}`}
                   className="used-card-image"
+                  onClick={() => handleImageClick(`/static/cards/${entry.card}.jpg`)} // On click, open image in modal
                 />
                 <div className="player-name">{entry.player_name}</div>
               </div>
@@ -234,6 +245,22 @@ const AdminPage = () => {
             {status}
           </Alert>
         )}
+
+        {/* Modal to display the enlarged image */}
+        <Modal
+  show={selectedImage !== null} // Show modal if an image is selected
+  onHide={handleCloseModal} // Close modal when clicking outside or close button
+  centered
+  size="lg" // Adjust the size as needed
+>
+  <div className="modal-overlay" onClick={handleCloseModal}>
+    <img
+      src={selectedImage}
+      alt="Enlarged Card"
+      className="modal-image"
+    />
+  </div>
+</Modal>
       </div>
     </Container>
   );

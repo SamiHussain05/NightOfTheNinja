@@ -1,3 +1,4 @@
+/* General App styles */
 .App {
   text-align: center;
 }
@@ -13,36 +14,40 @@
   }
 }
 
+/* App Header */
 .App-header {
-  background-color: #cdcdcd ;
+  background-color: #343a40; /* Dark background for the header */
   display: flex;
   align-items: center;
   justify-content: space-between; /* Ensures left, center, and right alignment */
   padding: 20px 30px;
-  font-size: 1.2rem; /* Standard font size for the header */
-  color: #333; /* Darker text for readability */
+  font-size: 1.2rem;
+  color: #f8f9fa; /* Light text color for contrast with dark background */
 }
 
 .App-header .game-title {
-  font-size: 2rem; /* Larger font size for the main title */
-  font-weight: bold; /* Bold title for emphasis */
-  flex: 1; /* Centers the title horizontally */
-  text-align: center; /* Ensures the title is centered */
+  font-size: 2rem;
+  font-weight: bold;
+  flex: 1;
+  text-align: center;
+  margin: 0;
 }
 
 .App-header .developer-info, .App-header .artist-info {
-  font-size: 1rem; /* Slightly smaller font for developer/artist info */
-  color: #666; /* Lighter grey text for less emphasis */
+  font-size: 1rem;
+  color: #dcdcdc; /* Light color text for less emphasis */
 }
 
+/* Align Developer Info (left) */
 .App-header .developer-info {
-  text-align: left; /* Align developer info to the left */
-  flex: 0; /* Prevents it from stretching */
+  text-align: left;
+  flex: 0;
 }
 
+/* Align Artist Info (right) */
 .App-header .artist-info {
-  text-align: right; /* Align artist info to the right */
-  flex: 0; /* Prevents it from stretching */
+  text-align: right;
+  flex: 0;
 }
 
 .App-header .App-link {
@@ -55,5 +60,24 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .App-header {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+    align-items: center;
+  }
+
+  .App-header .game-title {
+    font-size: 1.5rem; /* Smaller title on mobile */
+  }
+
+  .App-header .developer-info,
+  .App-header .artist-info {
+    font-size: 0.9rem; /* Smaller text for developer and artist info */
+    text-align: center; /* Center-align text for better mobile layout */
+    margin-top: 10px; /* Add spacing between info sections */
   }
 }

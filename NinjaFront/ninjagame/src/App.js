@@ -4,16 +4,16 @@ import CreateLobby from './CreateLobby';
 import JoinLobby from './JoinLobby';
 import PlayerCards from './PlayerCards';
 import AdminPage from './AdminPage';
+import NavbarComponent from './NavBar';
+// import FootbarComponent from './Footer';
 import './App.css'; // Import custom CSS file
 
 function App() {
   return (
     <Router>
-      <div className="App-header">
-        <h1 className="game-title">Night of the Ninja</h1>
-        <h2 className="developer-info">Developed by: Sami Hussain</h2>
-        <h2 className="artist-info">Art by: Hamzah Hussain</h2>
-      </div>
+      {/* Include Navbar at the top of the app */}
+      <h1 class= "name">Night Of The Ninja</h1>
+      <NavbarComponent />
       <div className="app-content">
         <Routes>
           <Route path="/" element={<CreateLobby />} />
