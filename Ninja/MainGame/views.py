@@ -10,14 +10,14 @@ import json
 
 HOUSE_CARDS = [
     "lotus_1", "crane_1", "lotus_2", "crane_2",
-    "lotus_3", "crane_3", "lotus_4", "crane_4"
+    "lotus_3", "crane_3", "lotus_4", "crane_4", "lotus_5", "crane_5","ronin"
 ]
 
 NINJA_CARDS = [
-    "mystic_1", "mystic_2", "mystic_3", "mystic_4",
-    "spy_1", "spy_2", "spy_3", "spy_4",
-    "blind_assassin_1", "blind_assassin_2", "blind_assassin_3", "blind_assassin_4",
-    "trickster_1", "trickster_2", "trickster_3", "trickster_4",
+    "mystic_1", "mystic_2", "mystic_3", "mystic_4","mystic_5","mystic_6",
+    "spy_1", "spy_2", "spy_3", "spy_4","spy_5","spy_6",
+    "blind_assassin_1", "blind_assassin_2", "blind_assassin_3", "blind_assassin_4","blind_assassin_5","blind_assassin_6",
+    "trickster_1", "trickster_2", "trickster_3", "trickster_4","trickster_5","trickster_6",
     "shinobi_1", "shinobi_2", "shinobi_3", "shinobi_4", "react_1", "react_2", "react_3"
 ]
 
@@ -26,30 +26,43 @@ CARD_IMAGES = {
     "lotus_2": "/static/cards/lotus_2.jpg",
     "lotus_3": "/static/cards/lotus_3.jpg",
     "lotus_4": "/static/cards/lotus_4.jpg",
+    "lotus_5": "/static/cards/lotus_5.jpg",
     "crane_1": "/static/cards/crane_1.jpg",
     "crane_2": "/static/cards/crane_2.jpg",
     "crane_3": "/static/cards/crane_3.jpg",
     "crane_4": "/static/cards/crane_4.jpg",
+    "crane_5": "/static/cards/ronin.jpg",
+    "ronin": "/static/cards/crane_5.jpg",
     "mystic_1": "/static/cards/mystic_1.jpg",
     "mystic_2": "/static/cards/mystic_2.jpg",
     "mystic_3": "/static/cards/mystic_3.jpg",
     "mystic_4": "/static/cards/mystic_4.jpg",
+    "mystic_5": "/static/cards/mystic_5.jpg",
+    "mystic_6": "/static/cards/mystic_6.jpg",
     "spy_1": "/static/cards/spy_1.jpg",
     "spy_2": "/static/cards/spy_2.jpg",
     "spy_3": "/static/cards/spy_3.jpg",
     "spy_4": "/static/cards/spy_4.jpg",
+    "spy_5": "/static/cards/spy_5.jpg",
+    "spy_6": "/static/cards/spy_6.jpg",
     "blind_assassin_1": "/static/cards/blind_assassin_1.jpg",
     "blind_assassin_2": "/static/cards/blind_assassin_2.jpg",
     "blind_assassin_3": "/static/cards/blind_assassin_3.jpg",
     "blind_assassin_4": "/static/cards/blind_assassin_4.jpg",
+    "blind_assassin_5": "/static/cards/blind_assassin_5.jpg",
+    "blind_assassin_6": "/static/cards/blind_assassin_6.jpg",
     "trickster_1": "/static/cards/trickster_1.jpg",
     "trickster_2": "/static/cards/trickster_2.jpg",
     "trickster_3": "/static/cards/trickster_3.jpg",
     "trickster_4": "/static/cards/trickster_4.jpg",
+    "trickster_5": "/static/cards/trickster_5.jpg",
+    "trickster_6": "/static/cards/trickster_6.jpg",
     "shinobi_1": "/static/cards/shinobi_1.jpg",
     "shinobi_2": "/static/cards/shinobi_2.jpg",
     "shinobi_3": "/static/cards/shinobi_3.jpg",
     "shinobi_4": "/static/cards/shinobi_4.jpg",
+    "shinobi_5": "/static/cards/shinobi_5.jpg",
+    "shinobi_6": "/static/cards/shinobi_6.jpg",
     "react_1": "/static/cards/react_1.jpg",
     "react_2": "/static/cards/react_2.jpg",
     "react_3": "/static/cards/react_3.jpg",
@@ -144,7 +157,7 @@ def shuffle_and_deal(request, lobby_code):
             'player_cards': player_cards
         })
     else:
-        cardstoget = HOUSE_CARDS
+        cardstoget = HOUSE_CARDS[:(playeramount-1)] + [HOUSE_CARDS[-1]]
         # Ensure enough ninja cards are available
         if len(players) * 3 > len(NINJA_CARDS):
             return JsonResponse({'error': 'Not enough ninja cards for all players'}, status=400)
