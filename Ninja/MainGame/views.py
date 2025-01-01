@@ -430,3 +430,20 @@ def deal_removed_card(request, lobby_code):
         'status': 'Card successfully dealt to the player.',
         'dealt_card': card_to_deal
     })
+
+@csrf_exempt
+def kick_player(request, lobby_code, player_id):
+    """
+    Allows the lobby owner or an authorized user to kick a player from the lobby.
+    """
+    # Fetch the lobby object
+    lobby = get_object_or_404(Lobby, code=lobby_code)
+    
+    # Fetch the player object to be kicked
+    player_to_kick = get_object_or_404(Player, id=player_id, lobby=lobby)
+
+
+    # Remove the player from the lobby
+    player_to_kick.delete()
+
+    return JsonResponse({'status': f'Player {player_to_kick.name} has been kicked from the lobby.'})

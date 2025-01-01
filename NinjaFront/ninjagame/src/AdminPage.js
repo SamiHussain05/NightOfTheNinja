@@ -89,6 +89,32 @@ const AdminPage = () => {
     }
   };
 
+  const handleKickPlayer = async () => {
+    if (!selectedPlayer) {
+      setStatus('Please select a player to kick.');
+      return;
+    }
+  
+    try {
+      // Updated URL to include both the lobbyCode and selectedPlayer (player_id)
+      const response = await fetch(`/lobby/${lobbyCode}/kick/${selectedPlayer}/`, {
+        method: 'POST', // POST is appropriate here, assuming you're sending a request to kick a player
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        setStatus('Player kicked successfully!');
+        setSelectedPlayer(null);
+        fetchPlayersAndCounts();  // Refresh the players list after kicking
+      } else {
+        setStatus(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      setStatus(`Error kicking player: ${error.message}`);
+    }
+  };
+
   useEffect(() => {
     fetchPlayersAndCounts();
     fetchUsedCards();
@@ -182,14 +208,13 @@ const AdminPage = () => {
               <p className="no-players">No players have joined yet.</p>
             )}
           </Col>
+
           <Col md={6} className="used-cards-section">
             <h3 className="used-cards-heading">Used Cards:</h3>
             {usedCards.length > 0 ? (
               <div className="used-cards-container">
                 {usedCards.map((entry, index) => {
-                  // Extract the card number from the card name
-                  const cardNumber = entry.card.split('_').pop(); // Get the last part of the card name
-                  
+                  const cardNumber = entry.card.split('_').pop();
                   return (
                     <div key={index} className="card-container">
                       <img
@@ -199,7 +224,6 @@ const AdminPage = () => {
                         onClick={() => handleImageClick(`/static/cards/${entry.card}.jpg`)}
                       />
                       <div className="player-name">{entry.player_name}</div>
-                      {/* Display the card number */}
                       <div className="card-number">Card Number: {cardNumber}</div>
                     </div>
                   );
@@ -217,6 +241,9 @@ const AdminPage = () => {
           </Button>
           <Button variant="dark" size="lg" className="reshuffle-btn" onClick={handleReshuffle}>
             Reshuffle Deck
+          </Button>
+          <Button variant="danger" onClick={handleKickPlayer} disabled={!selectedPlayer}>
+            Kick Selected Player
           </Button>
           <Button
             variant="danger"

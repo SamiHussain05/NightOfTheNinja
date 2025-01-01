@@ -19,4 +19,5 @@ urlpatterns = [
     path('clear-used-cards/<str:lobby_code>/', views.clear_used_cards, name='clear_used_cards'),
     path('get-removed-cards/<str:lobby_code>/', views.get_removed_cards, name='get_removed_cards'),
     path('deal-removed-card/<str:lobby_code>/', views.deal_removed_card, name='deal_removed_card'),
+    path('lobby/<str:lobby_code>/kick/<int:player_id>/', views.kick_player, name='kick_player'),
 ]

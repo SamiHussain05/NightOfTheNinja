@@ -40,7 +40,7 @@ const PlayerCards = () => {
     // Poll every 5 seconds
     const interval = setInterval(() => {
       fetchCards();
-    }, 5000);
+    }, 2000);
 
     // Cleanup interval on unmount
     return () => clearInterval(interval);
@@ -50,7 +50,7 @@ const PlayerCards = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setSelectedCards([]); // Clear selected cards state
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(interval); // Cleanup interval on unmount
   }, []);
