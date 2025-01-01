@@ -7,7 +7,7 @@ const PlayerCards = () => {
   const [cards, setCards] = useState(null);
   const [flippedCards, setFlippedCards] = useState([]); // Track flipped ninja cards state
   const [flippedHouseCard, setFlippedHouseCard] = useState(false); // Track flipped house card state
-  const [selectedCard, setSelectedCard] = useState(null); // Track selected card for discarding
+  const [selectedCards, setSelectedCards] = useState([]); // Track selected cards for discarding
   const [discardSubmitted, setDiscardSubmitted] = useState(false); // Track if discard has been submitted
   const [removeSubmitted, setRemoveSubmitted] = useState(false); // Track if remove has been submitted
   const [usedCards, setUsedCards] = useState([]); // Track used cards locally to avoid resubmitting them
@@ -46,6 +46,15 @@ const PlayerCards = () => {
     return () => clearInterval(interval);
   }, [lobbyCode, playerId, usedCards]); // Reinitialize polling if lobbyCode, playerId, or usedCards changes
 
+  // Reset the selectedCards state every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSelectedCards([]); // Clear selected cards state
+    }, 5000);
+
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
+
   const handleCardClick = (index) => {
     setFlippedCards((prevFlippedCards) => {
       const newFlippedCards = [...prevFlippedCards];
@@ -59,7 +68,16 @@ const PlayerCards = () => {
   };
 
   const handleSelectCard = (card) => {
-    setSelectedCard(card); // Allow only one card to be selected
+    setSelectedCards((prevSelectedCards) => {
+      if (prevSelectedCards.includes(card)) {
+        // Deselect the card if it's already selected
+        return prevSelectedCards.filter((selectedCard) => selectedCard !== card);
+      } else if (prevSelectedCards.length < 2) {
+        // Select the card if it's not already selected (and we have fewer than 2 selected)
+        return [...prevSelectedCards, card];
+      }
+      return prevSelectedCards; // If 2 cards are already selected, don't allow more selections
+    });
   };
 
   const handleSubmitDiscard = async () => {
@@ -67,19 +85,22 @@ const PlayerCards = () => {
       const response = await fetch(`/discard-and-redistribute/${lobbyCode}/${playerId}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ discarded_card: selectedCard }),
+        body: JSON.stringify({ discarded_cards: selectedCards }),
       });
+
       const data = await response.json();
-  
-      if (data.status === 'Card discarded and redistributed successfully.') {
-        setUsedCards((prevUsedCards) => [...prevUsedCards, selectedCard]); // Add to used cards
+
+      if (data.status === 'Cards discarded and redistributed successfully.') {
+        setUsedCards((prevUsedCards) => [...prevUsedCards, ...selectedCards]);
         setDiscardSubmitted(true);
+        setSelectedCards([]); 
         fetchCards();
+        setFlippedCards([]);
       } else {
-        console.error(data.error);
+        console.error('Error:', data.error);
       }
     } catch (error) {
-      console.error('Error discarding card:', error);
+      console.error('Error discarding cards:', error);
     }
   };
 
@@ -88,13 +109,15 @@ const PlayerCards = () => {
       const response = await fetch(`/remove-card/${lobbyCode}/${playerId}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ card_to_remove: selectedCard }),
+        body: JSON.stringify({ card_to_remove: selectedCards[0] }),
       });
       const data = await response.json();
-  
+
       if (data.status === 'Card removed successfully from the game.') {
         setRemoveSubmitted(true);
-        fetchCards(); // Fetch updated cards after the card is removed from player's hand
+        setSelectedCards([]);
+        setFlippedCards([]);
+        fetchCards();
       } else {
         console.error(data.error);
       }
@@ -105,26 +128,35 @@ const PlayerCards = () => {
 
   const handleUseCard = async () => {
     try {
+      if (selectedCards.length !== 1) {
+        console.error('Please select exactly 1 card to use.');
+        return;
+      }
+
+      const cardToUse = selectedCards[0];
+      const updatedNinjaCards = cards.ninja_cards.filter(card => card !== cardToUse);
+      setCards(prevCards => ({
+        ...prevCards,
+        ninja_cards: updatedNinjaCards
+      }));
+
+      setSelectedCards([]); // Reset the selected cards immediately before the API call
+
       const response = await fetch(`/get-used-cards/${lobbyCode}/${playerId}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ used_card: selectedCard }),
+        body: JSON.stringify({ used_card: cardToUse }),
       });
-  
+
       const data = await response.json();
-      if (data.status === 'Card used successfully.') {
-        setSelectedCard(null); // Clear the selected card
-  
-        // Now remove the card from the player's hand
-        await handleRemoveCard(); // Call to remove the used card from the player
-  
-        // After the card is removed, add it to used cards
-        setUsedCards((prevUsedCards) => [...prevUsedCards, selectedCard]); // Add to used cards after use
+      if (data.status === 'Cards used successfully.') {
+        setUsedCards((prevUsedCards) => [...prevUsedCards, cardToUse]);
+        setFlippedCards([]);
       } else {
         console.error(data.error);
       }
     } catch (error) {
-      console.error('Error using card:', error);
+      console.error('Error using cards:', error);
     }
   };
 
@@ -177,12 +209,12 @@ const PlayerCards = () => {
                 />
               </div>
             </div>
-            {/* Checkbox for selecting card (Always visible) */}
+            {/* Checkbox for selecting cards */}
             <div className="checkbox-container">
               <input
                 type="checkbox"
                 id={`checkbox-${index}`}
-                checked={selectedCard === card}
+                checked={selectedCards.includes(card)}
                 onChange={() => handleSelectCard(card)}
               />
               <label htmlFor={`checkbox-${index}`}>Select</label>
@@ -193,29 +225,26 @@ const PlayerCards = () => {
 
       {/* Action Buttons */}
       <div className="action-buttons">
-        {/* Use Card Button */}
         <button
           className="use-card-button"
           onClick={handleUseCard}
-          disabled={!selectedCard}
+          disabled={selectedCards.length !== 1} 
         >
           Use Card
         </button>
 
-        {/* Submit Discard Button */}
         <button
           className="submit-discard-button"
           onClick={handleSubmitDiscard}
-          disabled={!selectedCard}
+          disabled={selectedCards.length !== 2}
         >
           Submit Pass
         </button>
 
-        {/* Submit Remove Button */}
         <button
           className="submit-remove-button"
           onClick={handleRemoveCard}
-          disabled={!selectedCard}
+          disabled={selectedCards.length !== 1}
         >
           Remove Card
         </button>

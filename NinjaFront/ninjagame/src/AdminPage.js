@@ -186,17 +186,24 @@ const AdminPage = () => {
             <h3 className="used-cards-heading">Used Cards:</h3>
             {usedCards.length > 0 ? (
               <div className="used-cards-container">
-                {usedCards.map((entry, index) => (
-                  <div key={index} className="card-container">
-                    <img
-                      src={`/static/cards/${entry.card}.jpg`}
-                      alt={`Used Card ${entry.card}`}
-                      className="used-card-image"
-                      onClick={() => handleImageClick(`/static/cards/${entry.card}.jpg`)}
-                    />
-                    <div className="player-name">{entry.player_name}</div>
-                  </div>
-                ))}
+                {usedCards.map((entry, index) => {
+                  // Extract the card number from the card name
+                  const cardNumber = entry.card.split('_').pop(); // Get the last part of the card name
+                  
+                  return (
+                    <div key={index} className="card-container">
+                      <img
+                        src={`/static/cards/${entry.card}.jpg`}
+                        alt={`Used Card ${entry.card}`}
+                        className="used-card-image"
+                        onClick={() => handleImageClick(`/static/cards/${entry.card}.jpg`)}
+                      />
+                      <div className="player-name">{entry.player_name}</div>
+                      {/* Display the card number */}
+                      <div className="card-number">Card Number: {cardNumber}</div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <p>No cards have been used yet.</p>

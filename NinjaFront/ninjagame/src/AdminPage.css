@@ -247,3 +247,8 @@
   border-radius: 4px;
 }
 
+.card-number {
+  font-size: 14px;
+  color: #ffffff;
+  margin-top: 5px;
+}
