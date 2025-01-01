@@ -11,9 +11,8 @@ const AdminPage = () => {
   const [usedCards, setUsedCards] = useState([]);
   const [removedCards, setRemovedCards] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null); // State to track the selected image
+  const [selectedImage, setSelectedImage] = useState(null);
 
-  // Fetch players and their ninja card counts
   const fetchPlayersAndCounts = async () => {
     try {
       const response = await fetch(`/get-players/${lobbyCode}`);
@@ -35,7 +34,6 @@ const AdminPage = () => {
     }
   };
 
-  // Fetch used cards
   const fetchUsedCards = async () => {
     try {
       const response = await fetch(`/get-used-cards/${lobbyCode}/`);
@@ -50,7 +48,6 @@ const AdminPage = () => {
     }
   };
 
-  // Fetch removed cards
   const fetchRemovedCards = async () => {
     try {
       const response = await fetch(`/get-removed-cards/${lobbyCode}/`);
@@ -65,7 +62,6 @@ const AdminPage = () => {
     }
   };
 
-  // Handle dealing a removed card to a player (randomly pick card)
   const handleDealRemovedCard = async () => {
     if (!selectedPlayer) {
       setStatus('Please select a player to deal a card to.');
@@ -77,14 +73,14 @@ const AdminPage = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          player_id: selectedPlayer,  // Pass only the selected player
+          player_id: selectedPlayer,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
         setStatus('Card successfully dealt!');
-        fetchPlayersAndCounts(); // Refresh player counts
+        fetchPlayersAndCounts();
       } else {
         setStatus(`Error: ${data.error}`);
       }
@@ -93,7 +89,6 @@ const AdminPage = () => {
     }
   };
 
-  // Fetch data initially and set up interval for real-time updates
   useEffect(() => {
     fetchPlayersAndCounts();
     fetchUsedCards();
@@ -151,91 +146,80 @@ const AdminPage = () => {
     }
   };
 
-  // Handle modal image close
   const handleImageClick = (imageSrc) => {
-    setSelectedImage(imageSrc); // Open modal with selected image
+    setSelectedImage(imageSrc);
   };
 
   const handleCloseModal = () => {
-    setSelectedImage(null); // Close modal
+    setSelectedImage(null);
   };
 
   return (
     <Container fluid className="admin-page-container">
-      <div className="content-wrapper text-center">
+      <div className="content-wrapper">
         <h1 className="admin-title">Game Administration</h1>
         <h2 className="lobby-code">Lobby Code: {lobbyCode}</h2>
 
-        <h3 className="players-heading">Players in this Lobby:</h3>
-        {players.length > 0 ? (
-          <ListGroup className="players-list">
-            {players.map((player) => (
-              <ListGroup.Item
-                key={player.id}
-                className={`player-item ${selectedPlayer === player.id ? 'active' : ''}`}
-                onClick={() => setSelectedPlayer(player.id)} // Set selected player on click
-              >
-                {player.name} - Ninja Cards: {playerCardsCount[player.id] || 0}
-                {selectedPlayer === player.id && (
-                  <span className="selected-player-label">Selected</span>
-                )}
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        ) : (
-          <p className="no-players">No players have joined yet.</p>
-        )}
-
-        <h3 className="removed-cards-heading">Removed Cards: {removedCards.length}</h3>
-
-        <Row>
-          <Col>
-            <Button
-              variant="primary"
-              onClick={handleDealRemovedCard}
-              disabled={!selectedPlayer}
-            >
-              Deal Random Card to Selected Player
-            </Button>
+        <Row className="mt-4">
+          <Col md={6} className="players-section">
+            <h3 className="players-heading">Players in this Lobby:</h3>
+            {players.length > 0 ? (
+              <ListGroup className="players-list">
+                {players.map((player) => (
+                  <ListGroup.Item
+                    key={player.id}
+                    className={`player-item ${selectedPlayer === player.id ? 'active' : ''}`}
+                    onClick={() => setSelectedPlayer(player.id)}
+                  >
+                    {player.name} - Ninja Cards: {playerCardsCount[player.id] || 0}
+                    {selectedPlayer === player.id && (
+                      <span className="selected-player-label">Selected</span>
+                    )}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            ) : (
+              <p className="no-players">No players have joined yet.</p>
+            )}
+          </Col>
+          <Col md={6} className="used-cards-section">
+            <h3 className="used-cards-heading">Used Cards:</h3>
+            {usedCards.length > 0 ? (
+              <div className="used-cards-container">
+                {usedCards.map((entry, index) => (
+                  <div key={index} className="card-container">
+                    <img
+                      src={`/static/cards/${entry.card}.jpg`}
+                      alt={`Used Card ${entry.card}`}
+                      className="used-card-image"
+                      onClick={() => handleImageClick(`/static/cards/${entry.card}.jpg`)}
+                    />
+                    <div className="player-name">{entry.player_name}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No cards have been used yet.</p>
+            )}
           </Col>
         </Row>
 
-        <h3 className="used-cards-heading">Used Cards:</h3>
-        {usedCards.length > 0 ? (
-          <div className="used-cards-container">
-            {usedCards.map((entry, index) => (
-              <div key={index} className="card-container">
-                <img
-                  src={`/static/cards/${entry.card}.jpg`}
-                  alt={`Used Card ${entry.card}`}
-                  className="used-card-image"
-                  onClick={() => handleImageClick(`/static/cards/${entry.card}.jpg`)} // On click, open image in modal
-                />
-                <div className="player-name">{entry.player_name}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No cards have been used yet.</p>
-        )}
-
-        <Button
-          variant="dark"
-          size="lg"
-          className="reshuffle-btn"
-          onClick={handleReshuffle}
-        >
-          Reshuffle Deck
-        </Button>
-
-        <Button
-          variant="danger"
-          size="lg"
-          className="delete-lobby-btn mt-4"
-          onClick={handleDeleteLobby}
-        >
-          Delete Lobby
-        </Button>
+        <div className="action-buttons mt-4">
+          <Button variant="primary" onClick={handleDealRemovedCard} disabled={!selectedPlayer}>
+            Deal Random Card to Selected Player
+          </Button>
+          <Button variant="dark" size="lg" className="reshuffle-btn" onClick={handleReshuffle}>
+            Reshuffle Deck
+          </Button>
+          <Button
+            variant="danger"
+            size="lg"
+            className="delete-lobby-btn mt-4"
+            onClick={handleDeleteLobby}
+          >
+            Delete Lobby
+          </Button>
+        </div>
 
         {status && (
           <Alert
@@ -246,21 +230,11 @@ const AdminPage = () => {
           </Alert>
         )}
 
-        {/* Modal to display the enlarged image */}
-        <Modal
-  show={selectedImage !== null} // Show modal if an image is selected
-  onHide={handleCloseModal} // Close modal when clicking outside or close button
-  centered
-  size="lg" // Adjust the size as needed
->
-  <div className="modal-overlay" onClick={handleCloseModal}>
-    <img
-      src={selectedImage}
-      alt="Enlarged Card"
-      className="modal-image"
-    />
-  </div>
-</Modal>
+        <Modal show={selectedImage !== null} onHide={handleCloseModal} centered size="lg">
+          <div className="modal-overlay" onClick={handleCloseModal}>
+            <img src={selectedImage} alt="Enlarged Card" className="modal-image" />
+          </div>
+        </Modal>
       </div>
     </Container>
   );

@@ -93,9 +93,8 @@ const PlayerCards = () => {
       const data = await response.json();
   
       if (data.status === 'Card removed successfully from the game.') {
-        setUsedCards((prevUsedCards) => [...prevUsedCards, selectedCard]); // Add to used cards
         setRemoveSubmitted(true);
-        fetchCards();
+        fetchCards(); // Fetch updated cards after the card is removed from player's hand
       } else {
         console.error(data.error);
       }
@@ -118,6 +117,9 @@ const PlayerCards = () => {
   
         // Now remove the card from the player's hand
         await handleRemoveCard(); // Call to remove the used card from the player
+  
+        // After the card is removed, add it to used cards
+        setUsedCards((prevUsedCards) => [...prevUsedCards, selectedCard]); // Add to used cards after use
       } else {
         console.error(data.error);
       }

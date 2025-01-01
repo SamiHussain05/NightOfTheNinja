@@ -40,6 +40,7 @@
     text-align: left; /* Align text to the left */
 }
 
+
 .player-item {
     background-color: #343a40; /* Dark background for the player item */
     color: white;
@@ -201,3 +202,48 @@
     max-width: 100%; /* Ensure images in modal don't overflow */
   }
 }
+
+
+
+
+
+
+/* Limit the height of the players list and make it scrollable */
+.players-list {
+  max-height: 300px; /* Adjust as needed */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-bottom: 2rem;
+}
+
+/* Limit the height of the used cards section and make it scrollable */
+.used-cards-container {
+  max-height: 300px; /* Adjust as needed */
+  overflow-y: auto; /* Enable vertical scrolling */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  padding: 10px;
+}
+
+/* Ensure the content wrapper doesn't overflow */
+.content-wrapper {
+  max-height: 90vh; /* Adjust as necessary */
+  overflow: hidden; /* Prevent overflow of the entire content */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Scrollbars style for a better appearance (optional) */
+.players-list::-webkit-scrollbar,
+.used-cards-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.players-list::-webkit-scrollbar-thumb,
+.used-cards-container::-webkit-scrollbar-thumb {
+  background: #495057; /* Dark gray scrollbar */
+  border-radius: 4px;
+}
+

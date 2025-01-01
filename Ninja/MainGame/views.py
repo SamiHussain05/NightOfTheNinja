@@ -77,7 +77,7 @@ def join_lobby(request, lobby_code):
     lobby = get_object_or_404(Lobby, code=lobby_code)
     
     # Check if the lobby is full (assuming a max of 4 players)
-    if lobby.players.count() >= 4:
+    if lobby.players.count() >= 11:
         return JsonResponse({'error': 'Lobby is full'}, status=400)
     
     player_name = request.GET.get('name')
@@ -395,8 +395,18 @@ def deal_removed_card(request, lobby_code):
     if not lobby.removed_cards:
         return JsonResponse({'error': 'No removed cards available to deal.'}, status=404)
 
-    # Randomly select a card from the removed cards list
-    card_to_deal = random.choice(lobby.removed_cards)
+    # Debug: Log the current state of removed_cards and used_cards
+    print(f"Current removed_cards: {lobby.removed_cards}")
+    print(f"Current used_cards: {lobby.used_cards}")
+
+    # Ensure that removed cards do not include used cards
+    valid_removed_cards = [card for card in lobby.removed_cards if card not in lobby.used_cards]
+
+    if not valid_removed_cards:
+        return JsonResponse({'error': 'No valid removed cards available to deal (all are used).'}, status=404)
+
+    # Randomly select a card from the valid removed cards list
+    card_to_deal = random.choice(valid_removed_cards)
 
     # Assign the card to the player
     player.ninja_cards.append(card_to_deal)  # Add the card to the player's ninja cards
@@ -404,6 +414,8 @@ def deal_removed_card(request, lobby_code):
 
     # Remove the card from the removed cards list
     lobby.removed_cards.remove(card_to_deal)
+
+    # Save updated lobby state
     lobby.save()
 
     return JsonResponse({
