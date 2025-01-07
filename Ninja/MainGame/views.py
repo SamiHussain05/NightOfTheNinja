@@ -95,20 +95,24 @@ def reshuffle_deck(request, lobby_code):
     # Fetch the lobby object
     lobby = get_object_or_404(Lobby, code=lobby_code)
 
-    # Reset all players' cards (clear out old cards)
+    # Reset all players' cards and statuses
     for player in lobby.players.all():
         player.house_card = None
-        player.ninja_cards = []  # Clear ninja cards as well
+        player.ninja_cards = []  # Clear ninja cards
+        player.passed_cards = []  # Clear passed cards
+        player.recieved_cards = []  # Clear received cards
+        player.passed = False  # Reset passed status
+        player.removed = False  # Reset removed status
         player.save()
 
-    # Clear used cards from the lobby
+    # Clear used and removed cards in the lobby
     lobby.used_cards = []  # Reset the used cards list
+    lobby.removed_cards = []  # Reset the removed cards list
     lobby.save()
 
-    # Call shuffle_and_deal function to reshuffle and redistribute the cards
+    # Call shuffle_and_deal to reshuffle and redistribute the cards
     shuffled_response = shuffle_and_deal(request, lobby_code)
 
-    # The response from shuffle_and_deal is already in JSON format, so just pass it as is
     return shuffled_response
 
 
@@ -123,7 +127,7 @@ def shuffle_and_deal(request, lobby_code):
     lobby.save()
 
     if playeramount % 2 == 0:
-        cardstoget = HOUSE_CARDS[:(playeramount)]
+        cardstoget = HOUSE_CARDS[:playeramount]
         # Ensure enough ninja cards are available
         if len(players) * 3 > len(NINJA_CARDS):
             return JsonResponse({'error': 'Not enough ninja cards for all players'}, status=400)
@@ -137,6 +141,10 @@ def shuffle_and_deal(request, lobby_code):
         available_ninja_cards = shuffled_ninja.copy()
 
         for i, player in enumerate(players):
+            # Clear passed_cards and recieved_cards fields
+            player.passed_cards = []
+            player.recieved_cards = []
+
             # Assign cards
             house_card = available_house_cards.pop()
             ninja_cards = [available_ninja_cards.pop(), available_ninja_cards.pop(), available_ninja_cards.pop()]
@@ -157,7 +165,7 @@ def shuffle_and_deal(request, lobby_code):
             'player_cards': player_cards
         })
     else:
-        cardstoget = HOUSE_CARDS[:(playeramount-1)] + [HOUSE_CARDS[-1]]
+        cardstoget = HOUSE_CARDS[:(playeramount - 1)] + [HOUSE_CARDS[-1]]
         # Ensure enough ninja cards are available
         if len(players) * 3 > len(NINJA_CARDS):
             return JsonResponse({'error': 'Not enough ninja cards for all players'}, status=400)
@@ -171,6 +179,10 @@ def shuffle_and_deal(request, lobby_code):
         available_ninja_cards = shuffled_ninja.copy()
 
         for i, player in enumerate(players):
+            # Clear passed_cards and recieved_cards fields
+            player.passed_cards = []
+            player.recieved_cards = []
+
             # Assign cards
             house_card = available_house_cards.pop()
             ninja_cards = [available_ninja_cards.pop(), available_ninja_cards.pop(), available_ninja_cards.pop()]
@@ -213,13 +225,37 @@ def get_player_cards(request, lobby_code, player_id):
     try:
         # Fetch the player and their cards
         player = Player.objects.get(id=player_id, lobby__code=lobby_code)
-        player_cards = {
-            'house_card': player.house_card,
-            'ninja_cards': player.ninja_cards
+
+        # Add passed and removed attributes to the response
+        player_state = {
+            'passed': player.passed,  # Assuming 'passed' is a boolean
+            'removed': player.removed  # Assuming 'removed' is a boolean
         }
+
+        if len(player.passed_cards) != 2:
+            player_cards = {
+                'house_card': player.house_card,
+                'ninja_cards': player.ninja_cards,
+                'player_state': player_state  # Include player state
+            }
+        else:
+            # Update the ninja cards by appending received cards
+            player_ninja_cards = list(player.ninja_cards) + list(player.recieved_cards)
+            player.ninja_cards = player_ninja_cards  # Save back to player's ninja cards
+            player.recieved_cards = []  # Clear received cards after appending
+            player.save()
+
+            player_cards = {
+                'house_card': player.house_card,
+                'ninja_cards': player_ninja_cards,
+                'player_state': player_state  # Include player state
+            }
+
         return JsonResponse(player_cards)
     except Player.DoesNotExist:
         return JsonResponse({'error': 'Player not found'}, status=404)
+
+
     
 @csrf_exempt
 def delete_lobby(request, lobby_code):
@@ -228,31 +264,27 @@ def delete_lobby(request, lobby_code):
     lobby.delete()
     
     return JsonResponse({"message": "Lobby deleted successfully"})
+
+
+
 @csrf_exempt
 def discard_and_redistribute(request, lobby_code, player_id):
-    """
-    Handles discarding 2 ninja cards and redistributing them to the next player in a circular order.
-    """
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid HTTP method. Use POST.'}, status=405)
 
-    # Parse request data
     try:
         data = json.loads(request.body)
         discarded_cards = data['discarded_cards']  # Multiple cards to discard
-    except (KeyError, ValueError) as e:
+    except (KeyError, ValueError):
         return JsonResponse({'error': 'Invalid request data. Include discarded_cards.'}, status=400)
 
-    # Fetch the lobby and players
     lobby = get_object_or_404(Lobby, code=lobby_code)
     players = list(lobby.players.all())
 
-    # Fetch the discarding player
     discarding_player = next((player for player in players if player.id == player_id), None)
     if not discarding_player:
         return JsonResponse({'error': 'Discarding player not found.'}, status=404)
 
-    # Ensure the player actually owns the discarded cards
     if not all(card in discarding_player.ninja_cards for card in discarded_cards):
         return JsonResponse({'error': 'Player does not own all the discarded cards.'}, status=400)
 
@@ -260,69 +292,57 @@ def discard_and_redistribute(request, lobby_code, player_id):
     ninja_cards = list(discarding_player.ninja_cards)
     for card in discarded_cards:
         ninja_cards.remove(card)
+
+    # Update player's state
+    discarding_player.passed_cards = discarded_cards
     discarding_player.ninja_cards = ninja_cards
+    discarding_player.passed = True  # Mark as passed
+    discarding_player.removed = False  # Ensure removed is explicitly set to False
     discarding_player.save()
 
-    # Find the index of the discarding player
+    # Distribute discarded cards
     player_index = next((index for index, player in enumerate(players) if player.id == player_id), None)
-    if player_index is None:
-        return JsonResponse({'error': 'Player not found in the lobby.'}, status=404)
-
-    # Now, distribute the discarded cards to the next players in a circular order
     for card in discarded_cards:
-        current_player_index = (player_index + 1) % len(players)  # Get the next player, wrapping around circularly
+        current_player_index = (player_index + 1) % len(players)
         receiving_player = players[current_player_index]
-
-        # Add the discarded card to the receiving player's hand
-        receiving_player_ninja_cards = list(receiving_player.ninja_cards)
-        receiving_player_ninja_cards.append(card)
-        receiving_player.ninja_cards = receiving_player_ninja_cards
+        receiving_player.recieved_cards.append(card)
         receiving_player.save()
 
-    # Response to indicate successful discard and redistribution
     return JsonResponse({'status': 'Cards discarded and redistributed successfully.'})
 
 
 @csrf_exempt
 def remove_card(request, lobby_code, player_id):
-    """
-    Handles removing a ninja card from the game completely and tracks it in the lobby's removed cards.
-    """
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid HTTP method. Use POST.'}, status=405)
 
-    # Parse request data
     try:
         data = json.loads(request.body)
-        card_to_remove = data['card_to_remove']  # The card to remove from the game
-    except (KeyError, ValueError) as e:
+        card_to_remove = data['card_to_remove']
+    except (KeyError, ValueError):
         return JsonResponse({'error': 'Invalid request data. Include card_to_remove.'}, status=400)
 
-    # Fetch the lobby and player
     lobby = get_object_or_404(Lobby, code=lobby_code)
     players = list(lobby.players.all())
 
-    # Fetch the player who is discarding
     removing_player = next((player for player in players if player.id == player_id), None)
     if not removing_player:
         return JsonResponse({'error': 'Player not found.'}, status=404)
 
-    # Ensure the player owns the card they want to remove
     if card_to_remove not in removing_player.ninja_cards:
         return JsonResponse({'error': 'Player does not own the card to remove.'}, status=400)
 
-    # Remove the card from the player's hand and update the player's ninja cards
+    # Remove the card and update status
     removing_player.ninja_cards.remove(card_to_remove)
+    removing_player.removed = True  # Mark as removed
     removing_player.save()
 
-    # Add the card to the lobby's removed_cards list
     if not lobby.removed_cards:
-        lobby.removed_cards = []  # Initialize if the field is empty
+        lobby.removed_cards = []
     lobby.removed_cards.append(card_to_remove)
     lobby.save()
 
     return JsonResponse({'status': 'Card removed successfully from the game.'})
-
 
 @csrf_exempt
 def use_card(request, lobby_code, player_id):

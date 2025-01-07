@@ -11,6 +11,7 @@ const PlayerCards = () => {
   const [discardSubmitted, setDiscardSubmitted] = useState(false); // Track if discard has been submitted
   const [removeSubmitted, setRemoveSubmitted] = useState(false); // Track if remove has been submitted
   const [usedCards, setUsedCards] = useState([]); // Track used cards locally to avoid resubmitting them
+  const [playerState, setPlayerState] = useState({ passed: false, removed: false }); // Track player state
 
   const fetchCards = async () => {
     try {
@@ -22,7 +23,12 @@ const PlayerCards = () => {
           house_card: data.house_card,
           ninja_cards: data.ninja_cards.filter(card => !usedCards.includes(card)), // Filter out used cards
         };
-  
+
+        // Assuming playerState is part of the response:
+        const { passed, removed } = data.player_state || { passed: false, removed: false };
+        
+        setPlayerState({ passed, removed });
+
         localStorage.setItem(`playerCards_${lobbyCode}_${playerId}`, JSON.stringify(playerCards));
         setCards(playerCards);
       } else {
@@ -37,7 +43,7 @@ const PlayerCards = () => {
     // Initial fetch
     fetchCards();
 
-    // Poll every 5 seconds
+    // Poll every 2 seconds
     const interval = setInterval(() => {
       fetchCards();
     }, 2000);
@@ -45,15 +51,6 @@ const PlayerCards = () => {
     // Cleanup interval on unmount
     return () => clearInterval(interval);
   }, [lobbyCode, playerId, usedCards]); // Reinitialize polling if lobbyCode, playerId, or usedCards changes
-
-  // Reset the selectedCards state every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSelectedCards([]); // Clear selected cards state
-    }, 10000);
-
-    return () => clearInterval(interval); // Cleanup interval on unmount
-  }, []);
 
   const handleCardClick = (index) => {
     setFlippedCards((prevFlippedCards) => {
@@ -223,38 +220,41 @@ const PlayerCards = () => {
         ))}
       </div>
 
-      {/* Action Buttons */}
+      {/* Conditional Action Buttons */}
       <div className="action-buttons">
-        <button
-          className="use-card-button"
-          onClick={handleUseCard}
-          disabled={selectedCards.length !== 1} 
-        >
-          Use Card
-        </button>
+        {/* Use Card Button */}
+        {playerState.passed && playerState.removed &&(
+          <button
+            className="use-card-button"
+            onClick={handleUseCard}
+            disabled={selectedCards.length !== 1}
+          >
+            Use Card
+          </button>
+        )}
 
-        <button
-          className="submit-discard-button"
-          onClick={handleSubmitDiscard}
-          disabled={selectedCards.length !== 2}
-        >
-          Submit Pass
-        </button>
+        {/* Submit Pass Button */}
+        {!playerState.passed && (
+          <button
+            className="submit-discard-button"
+            onClick={handleSubmitDiscard}
+            disabled={selectedCards.length !== 2}
+          >
+            Submit Pass
+          </button>
+        )}
 
-        <button
-          className="submit-remove-button"
-          onClick={handleRemoveCard}
-          disabled={selectedCards.length !== 1}
-        >
-          Remove Card
-        </button>
+        {/* Remove Card Button */}
+        {playerState.passed && (
+          <button
+            className="submit-remove-button"
+            onClick={handleRemoveCard}
+            disabled={selectedCards.length !== 1}
+          >
+            Remove Card
+          </button>
+        )}
       </div>
-
-      {/* Discard Confirmation */}
-      {discardSubmitted && <p>Pass submitted successfully!</p>}
-
-      {/* Remove Confirmation */}
-      {removeSubmitted && <p>Card removed from the game successfully!</p>}
     </div>
   );
 };
