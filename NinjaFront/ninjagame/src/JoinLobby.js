@@ -17,7 +17,6 @@ const JoinLobby = () => {
       const data = await response.json();
 
       if (data.players_count) {
-        alert(`Joined lobby. There are now ${data.players_count} players in the lobby.`);
 
         // Redirect the user to their player card page
         navigate(`/cards/${lobbyCode}/${data.player_id}`);

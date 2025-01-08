@@ -235,14 +235,14 @@ const AdminPage = () => {
           </Col>
         </Row>
 
-        <div className="action-buttons mt-4">
-          <Button variant="primary" onClick={handleDealRemovedCard} disabled={!selectedPlayer}>
+        <div className="action-buttons">
+          <Button variant="primary" className ="deal-btn" onClick={handleDealRemovedCard} disabled={!selectedPlayer}>
             Deal Random Card to Selected Player
           </Button>
           <Button variant="dark" size="lg" className="reshuffle-btn" onClick={handleReshuffle}>
             Reshuffle Deck
           </Button>
-          <Button variant="danger" onClick={handleKickPlayer} disabled={!selectedPlayer}>
+          <Button variant="danger" className="kick-btn" onClick={handleKickPlayer} disabled={!selectedPlayer}>
             Kick Selected Player
           </Button>
           <Button

@@ -1,23 +1,26 @@
 /* Full-page background with center alignment */
 .admin-page-container {
   height: 100vh;
-  background-color: #1a1a1a; /* Dark background */
-  color: white; /* White text for contrast */
+  background-color: #1a1a1a;
+  color: white;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  overflow-y: auto;   /* Allow vertical scrolling */
 }
 
 /* Wrapper for content */
 .content-wrapper {
   text-align: center;
-  max-width: 600px; /* Limit width for better readability */
-  width: 100%; /* Ensure full width on mobile */
-  max-height: 90vh; /* Prevent overflow of the entire content */
-  overflow: hidden; /* Prevent overflow */
+  max-width: 100%; /* Ensure it doesn't exceed viewport width */
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 /* Title Styling */
@@ -43,7 +46,7 @@
 .players-list {
   margin-bottom: 2rem; /* Space between list and button */
   text-align: left; /* Align text to the left */
-  max-height: 300px; /* Scrollable list */
+  max-height: 1000px; /* Scrollable list */
   overflow-y: auto;
   margin-bottom: 2rem;
 }
@@ -64,7 +67,6 @@
 /* Hover Effect on Player Item */
 .player-item:hover {
   background-color: #495057; /* Lighten the background on hover */
-  transform: scale(1.02); /* Slight zoom effect */
 }
 
 /* Highlight Selected Player */
@@ -82,6 +84,8 @@
 }
 
 /* Reshuffle Button */
+.deal-btn,
+.kick-btn,
 .reshuffle-btn,
 .delete-lobby-btn {
   border-radius: 5px;
@@ -94,13 +98,41 @@
   padding: 1rem 0;
 }
 
+/* Hover effects for all buttons */
+.deal-btn:hover,
+.kick-btn:hover,
 .reshuffle-btn:hover,
 .delete-lobby-btn:hover {
   transform: scale(1.05); /* Slight zoom effect */
 }
 
+/* Specific button styles */
+.deal-btn {
+  background-color: #007bff; /* Primary blue background */
+  color: white;
+  border: none;
+}
+
+.deal-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.kick-btn {
+  background-color: #ffc107; /* Yellow warning background */
+  color: black;
+  border: none;
+}
+
+.kick-btn:hover {
+  background-color: #e0a800; /* Darker yellow on hover */
+}
+
 .reshuffle-btn {
   background-color: #d3dae2; /* Lighter gray background */
+}
+
+.reshuffle-btn:hover {
+  background-color: #c2c9d2; /* Slightly darker gray on hover */
 }
 
 .delete-lobby-btn {
@@ -111,20 +143,16 @@
   background-color: #c82333; /* Darker red on hover */
 }
 
-/* Status Alert */
-.status-alert {
-  font-size: 1rem;
-}
-
 /* Used Cards Section */
 .used-cards-container {
-  display: grid; /* Use grid layout */
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Automatically fill columns */
-  gap: 16px; /* Space between grid items */
+  display: grid; 
+  grid-template-columns: repeat(4,1fr); /* Auto-adjust columns */
+  gap: 10px; /* Add some spacing between items */
   margin-top: 20px;
-  max-height: 300px; /* Limit height and make scrollable */
-  overflow-y: auto;
-  padding: 10px;
+  max-height: 500px; /* Limit height and make scrollable */
+  overflow-y: auto; /* Allow vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  padding: 0 10px; /* Add some padding to avoid clipping */
 }
 
 .card-container {
@@ -221,4 +249,13 @@
 .used-cards-container::-webkit-scrollbar-thumb {
   background: #495057; /* Dark gray scrollbar */
   border-radius: 4px;
+}
+
+.players-section{
+  float: left;
+  height: 100%
+}
+
+.action-buttons{
+  overflow-y: auto;
 }
